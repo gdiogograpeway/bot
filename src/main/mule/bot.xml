@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		<http:request-connection host="docs.mulesoft.com" />
 	</http:request-config>
 	<file:config name="File_Config" doc:name="File Config" doc:id="c45483d2-429a-49aa-92fc-3c0fb7637ea9" >
-		<file:connection workingDir="C:\Users\Gabri\GW\bot\src\main\resources\data-site" />
+		<file:connection workingDir="C:\Users\Gabri\GW\Bot-git\src\main\resources\data-site" />
 	</file:config>
 	<flow name="botFlow" doc:id="934bb51e-737f-42a2-8470-ae522643c360" >
 		<http:listener doc:name="Listener" doc:id="3bad05a7-5658-4632-abed-2ddf406053c7" config-ref="HTTP_Listener_config" path="/oi"/>
@@ -30,14 +30,17 @@ payload filter ($.cc[0].content contains(upper(vars.param))) map(item, index) ->
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<foreach doc:name="payload.cc.items" doc:id="bcc1409a-33be-4a9b-b10b-38535a48ec25" collection="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter -1].cc[0].items]" counterVariableName="counterDois">
+				<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;++(&#10;{&#10;	"content": vars.dfPayload[vars.counter -1].cc[0].items[vars.counterDois -1].content,&#10;	"url":vars.dfPayload[vars.counter -1].cc[0].items[vars.counterDois -1].url&#10;},&#10;{&#10;	"content": vars.dfPayload[vars.counter -1].cc[0].items[vars.counterDois].content,&#10;	"url":vars.dfPayload[vars.counter -1].cc[0].items[vars.counterDois].url&#10;})]' doc:name="Set Variable" doc:id="0592cad6-8c90-4695-94d5-8e95e5d38fc8" variableName="firstFor" />
+			</foreach>
 	</flow>
 	<flow name="botFlow1" doc:id="1fa37632-5e8f-4e34-b500-ad6a16d630c2" >
 		<http:listener doc:name="Listener" doc:id="9e38ee0e-c28f-471b-8409-bef2de1dc658" config-ref="HTTP_Listener_config" path="/page" allowedMethods="POST"/>
 		<set-variable value="#[attributes.queryParams[0]]" doc:name="Set Variable" doc:id="707d2efe-0b5b-47a1-b28b-48e23fee6c75" variableName="param" />
-		<file:list doc:name="List" doc:id="7735a227-e130-4d91-8123-9052656ef9e0" config-ref="File_Config" directoryPath="C:\Users\Gabri\GW\bot\src\main\resources\data-site\"/>
+		<file:list doc:name="List" doc:id="7735a227-e130-4d91-8123-9052656ef9e0" config-ref="File_Config" directoryPath="C:\Users\Gabri\GW\Bot-git\src\main\resources\data-site\"/>
 		<choice doc:name="Choice" doc:id="34fdc8ca-e711-4aa3-af94-79df514523d5" >
 			<when expression="#[sizeOf(payload) &gt; 0]">
-				<file:read doc:name="Read" doc:id="59acaa3b-eb87-4509-be12-217e1e5250bf" config-ref="File_Config" path="C:\Users\Gabri\GW\bot\src\main\resources\data-site\data.json"/>
+				<file:read doc:name="Read" doc:id="59acaa3b-eb87-4509-be12-217e1e5250bf" config-ref="File_Config" path="C:\Users\Gabri\GW\Bot-git\src\main\resources\data-site\data.json"/>
 				<set-variable value="#[payload]" doc:name="dfPayload" doc:id="d6f76d7e-ac69-40de-98ee-4b105ff1aec0" variableName="dfPayload" />
 				<ee:transform doc:name="Transform Message" doc:id="47c78286-a9e0-44a0-8e6e-04fa6b891def">
 			<ee:message>
@@ -55,22 +58,57 @@ payload map(item, index) ->
 				<foreach doc:name="payload[]" doc:id="82c86ab4-5c06-4e98-ba32-2fb9c463a706" collection="#[vars.dfPayload]">
 			<logger level="INFO" doc:name="Logger" doc:id="05ccb0fb-1e61-4e52-bfec-b879422eb261" message="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter]]" />
 			<choice doc:name="Choice" doc:id="6a20fba8-773f-40c9-9c36-899e82823132">
-				<when expression="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter -1].cc.items != null]">
-					<foreach doc:name="payload.cc.items" doc:id="bcc1409a-33be-4a9b-b10b-38535a48ec25" collection="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter].cc[0].items]" counterVariableName="counterDois">
-				<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;[{&#10;	"content": vars.dfPayload[vars.counter].cc[0].items[vars.counterDois].content,&#10;	"url":vars.dfPayload[vars.counter].cc[0].items[vars.counterDois].url&#10;}]]' doc:name="Set Variable" doc:id="0592cad6-8c90-4695-94d5-8e95e5d38fc8" variableName="firstFor" />
-								<ee:transform doc:name="Transform Message" doc:id="24e93868-d06f-4f14-8509-14d6e88a0088" >
-									<ee:message >
-										<ee:set-payload ><![CDATA[%dw 2.0
+						<when expression="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter -1].cc[0].items != null]">
+							<ee:transform doc:name="Transform Message" doc:id="1d630e11-2348-494e-b77b-ca727bfbd456" >
+								<ee:message >
+									<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-vars.firstFor map(item,index) ->
+vars.dfPayload[vars.counter -1].cc[0].items map(item, index) ->
 {
-	"content": item.content
+	"content": item.content,
+	"url":item.url
 }]]></ee:set-payload>
-									</ee:message>
-								</ee:transform>
-								<logger level="INFO" doc:name="Logger" doc:id="7c3a4bb2-87d6-4372-9226-71609d85201e" message="#[payload]"/>
-			</foreach>
+								</ee:message>
+							</ee:transform>
+							<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;if(vars.counter == 1)(payload)else(++(vars.itemsUm, payload))]" doc:name="Set Variable" doc:id="291193be-cc5d-4b4f-a1ee-2e4dc961aa7a" variableName="itemsUm"/>
+							<logger level="INFO" doc:name="Logger" doc:id="7c3a4bb2-87d6-4372-9226-71609d85201e" message="#[vars.itemsUm]" />
+							<choice doc:name="Choice" doc:id="9fc90c29-f91b-462f-8d2f-004bcd85f543" >
+								<when expression="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter -1].cc[0].items.items != null]">
+									<ee:transform doc:name="Transform Message" doc:id="1ebc82ca-6658-46a7-b88f-4d8a855b2226">
+								<ee:message>
+									<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.dfPayload[vars.counter -1].cc[0].items.items map(item, index) ->
+{
+	"content": item.content,
+	"url":item.url
+}]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+									<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;if(vars.counter == 1)(payload)else(++(vars.itemsDois, payload))]" doc:name="Set Variable" doc:id="22341122-2362-4b46-bdf6-d52b1b45a86d" variableName="itemsDois" />
+									<logger level="INFO" doc:name="Logger" doc:id="aa90bef7-965e-47f2-bacf-cb81de6712cd" message="#[vars.itemsDois]" />
+									<choice doc:name="Choice" doc:id="60ce859d-e3cc-4e82-8d72-ec7b0235bef2" >
+										<when expression="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.dfPayload[vars.counter -1].cc[0].items.items.items != null]">
+											<ee:transform doc:name="Transform Message" doc:id="24433557-e6a0-4e7d-b1f0-f15476a6dce9" >
+												<ee:message >
+													<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.dfPayload[vars.counter -1].cc[0].items.items.items[0] map(item, index) ->
+{
+	"content": item.content,
+	"url":item.url
+}]]></ee:set-payload>
+												</ee:message>
+											</ee:transform>
+											<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;if(vars.counter == 1)(payload)else(++(vars.itemsTreis, payload))]" doc:name="Set Variable" doc:id="9d1aedfc-d62d-4eac-b3c5-d083dbf3565b" variableName="itemsTreis"/>
+											<logger level="INFO" doc:name="Logger" doc:id="4d96b5da-6660-4d81-8523-68e2d00d664b" />
+										</when>
+									</choice>
+								</when>
+							</choice>
 				</when>
 			</choice>
 		</foreach>
@@ -104,7 +142,7 @@ payload map(item, index) ->
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-				<file:write doc:name="Write" doc:id="c6427364-0a8f-41b4-9915-5f0bd6b3eb2f" config-ref="File_Config" path="C:\Users\Gabri\GW\bot\src\main\resources\data-site\data.json" />
+				<file:write doc:name="Write" doc:id="c6427364-0a8f-41b4-9915-5f0bd6b3eb2f" config-ref="File_Config" path="C:\Users\Gabri\GW\Bot-git\src\main\resources\data-site\data.json" />
 			</otherwise>
 		</choice>
 	</flow>
