@@ -1,0 +1,14 @@
+{
+  "sampleData": {
+    "bcbb191e-6b17-4899-9f84-a76f68fb6daf": {
+      "payload": "sample_data/json.json"
+    },
+    "25c3558c-31b2-4766-86c0-089dad1b070d": {
+      "payload": "sample_data/json_1.json"
+    },
+    "24e93868-d06f-4f14-8509-14d6e88a0088": {
+      "vars-firstFor": "sample_data/java_1.dwl",
+      "payload": "sample_data/java.dwl"
+    }
+  }
+}

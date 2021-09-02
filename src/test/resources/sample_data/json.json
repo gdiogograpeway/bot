@@ -1,0 +1,20 @@
+{
+    "cc": [
+      {
+        "content": "Adobe Marketo Connector",
+        "url": "/marketo-connector/3.0/"
+      },
+      {
+        "content": "Marketo Connector",
+        "url": "/marketo-connector/0.3.9/"
+      },
+      {
+        "content": "Marketo Connector",
+        "url": "/marketo-connector/0.3.8/"
+      },
+      {
+        "content": "Marketo Connector",
+        "url": "/marketo-connector/0.3.7/"
+      }
+    ]
+}
